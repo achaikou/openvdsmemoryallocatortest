@@ -43,11 +43,13 @@ RUN git checkout v2021.10.0
 RUN cmake -S . -B build -DTBB_TEST=OFF
 RUN cmake --build build   --config Release  --target install  -j 8 --verbose
 
+RUN apk --no-cache add \
+    coreutils
+
 WORKDIR /src
 COPY . .
 RUN chmod +x all.sh
 
-ENV LD_LIBRARY_PATH=/open-vds:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/open-vds/Dist/OpenVDS/lib:$LD_LIBRARY_PATH
 ENV OPENVDS_AZURESDKFORCPP=1
-RUN g++ request.cpp -I/open-vds/Dist/OpenVDS/include -L/open-vds/Dist/OpenVDS/lib  -lopenvds -ltbb
 ENTRYPOINT [ "./all.sh" ]

@@ -177,13 +177,16 @@ int main(int argc, char* argv[]) {
         measure(noconcurrency, -1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     } else {
+        int sleep_seconds = 5;
+        int threads = 8;
         measure(noconcurrency, -1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
         measure(onehandle, 1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        measure(onehandle, 4, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-        measure(manyhandles, 4, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
+        measure(onehandle, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
+        measure(manyhandles, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
     }
 
     return 0;
