@@ -159,35 +159,50 @@ std::string sas = "";
 std::string url = "azure://" + container + "/" + vds;
 std::string connectionString = "BlobEndpoint=https://" + account + ".blob.core.windows.net;SharedAccessSignature=?" + sas;
 
-// could be fetched through metadata. Maybe do it in warm-up?
+// could be fetched through metadata. Maybe do it in warm-up? how can I find a good number? And how can I automatically run correct number of processes? Can I run processes from c++ instead?
 int iline_min = 0;
-int iline_max = 400;
+int iline_max = 6400;
 int xline_min = 0;
-int xline_max = 300;
-int depth_min = 60;
-int depth_max = 70;
+int xline_max = 3200;
+int depth_min = 700;
+int depth_max = 1000;
 
-// before measurements: assure Azure is warmed up
+// before measurements don't forget to assure Azure is warmed up
 int main(int argc, char* argv[]) {
+    int sleepseconds = 5;
 
-    if (argc > 1) {
-        int iline_min = std::atoi(argv[1]);
-        int iline_max = std::atoi(argv[2]);
-        std::cout << "Starting process with iline_min " << iline_min << ", iline max " << iline_max << std::endl;
+    std::string mode(argv[1]);
+    int iline_min = std::atoi(argv[2]);
+    int iline_max = std::atoi(argv[3]);
+
+    if (mode == "process") {
         measure(noconcurrency, -1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    } else {
-        int sleep_seconds = 5;
-        int threads = 8;
-        measure(noconcurrency, -1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
-        measure(onehandle, 1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
-        measure(onehandle, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
-        measure(manyhandles, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
-        std::this_thread::sleep_for(std::chrono::seconds(sleep_seconds));
+        return 0; //no final sleep, or it would be counted in execution time.
     }
+    if (mode == "no_concurrency") {
+        measure(noconcurrency, -1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+    } else if (mode == "one_handle_1_thread") {
+        measure(onehandle, 1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+    } else if (mode == "one_handle_n_threads") {
+        int threads = std::atoi(argv[4]);
+        measure(onehandle, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+    } else if (mode == "many_handles_n_threads") {
+        int threads = std::atoi(argv[4]);
+        measure(manyhandles, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+    } else if (mode == "all") {
+        int threads = std::atoi(argv[4]);
+        measure(noconcurrency, -1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+        std::this_thread::sleep_for(std::chrono::seconds(sleepseconds));
+        measure(onehandle, 1, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+        std::this_thread::sleep_for(std::chrono::seconds(sleepseconds));
+        measure(onehandle, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+        std::this_thread::sleep_for(std::chrono::seconds(sleepseconds));
+        measure(manyhandles, threads, url, connectionString, iline_min, iline_max, xline_min, xline_max, depth_min, depth_max);
+    } else {
+        std::cerr << "Unsupported mode " << mode << std::endl;
+        return 1;
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(sleepseconds));
 
     return 0;
 }
