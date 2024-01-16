@@ -30,10 +30,19 @@ void send_request(const OpenVDS::VDSHandle& handle, int iline_min, int iline_max
         0,
         0
     );
-    std::vector<float> buffer(size / 4); // make this vector with allocator too?
+    // option1
+    //std::vector<float> buffer(size / 4);
+
+    // option2
+    // std::vector<float> buffer; // make this vector with allocator too?
+    // buffer.reserve(size / 4);
+
+    // option3
+    std::unique_ptr< char[] > buffer(new char[size]);
 
     auto request = accessManager.RequestVolumeSubset(
-        buffer.data(),
+        //buffer.data(),
+        buffer.get(),
         size,
         OpenVDS::Dimensions_012,
         0,
