@@ -3,7 +3,7 @@ n=8
 min_iline=0
 max_iline=6400
 
-g++ request.cpp -I/open-vds/Dist/OpenVDS/include -L/open-vds/Dist/OpenVDS/lib  -lopenvds -ltbb -o request.out
+g++ request.cpp -O3 -DNDEBUG -I/open-vds/Dist/OpenVDS/include -L/open-vds/Dist/OpenVDS/lib  -lopenvds -ltbb -o request.out
 # ./request.out "no_concurrency" $min_iline $max_iline
 # ./request.out "one_handle_1_thread" $min_iline $max_iline
 #./request.out "one_handle_n_threads" $min_iline $max_iline $n
