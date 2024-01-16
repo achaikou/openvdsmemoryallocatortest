@@ -6,14 +6,14 @@ max_iline=6400
 g++ request.cpp -I/open-vds/Dist/OpenVDS/include -L/open-vds/Dist/OpenVDS/lib  -lopenvds -ltbb -o request.out
 # ./request.out "no_concurrency" $min_iline $max_iline
 # ./request.out "one_handle_1_thread" $min_iline $max_iline
-# ./request.out "one_handle_n_threads" $min_iline $max_iline $n
-./request.out "many_handles_n_threads" $min_iline $max_iline $n
-#./request.out "all" $min_iline $max_iline $n
+#./request.out "one_handle_n_threads" $min_iline $max_iline $n
+#./request.out "many_handles_n_threads" $min_iline $max_iline $n
+./request.out "all" $min_iline $max_iline $n
 
 
 # now run same split into processes - it shows possibility of speedup
 
-echo "Running as process"
+echo "Running as $n processes"
 start_time=$(date +%s%N)
 
 
