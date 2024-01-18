@@ -31,10 +31,10 @@ void send_request(const OpenVDS::VDSHandle& handle, int iline_min, int iline_max
         0
     );
     // option1
-    //std::vector<float> buffer(size / 4);
+    //std::vector<float> buffer(size / 4); //this is size, not reserve, so it actually does a bad thing
 
     // option2
-    // std::vector<float> buffer; // make this vector with allocator too?
+    // std::vector<float> buffer; // could be with tbb allocator too, but option3 is simpler anyway
     // buffer.reserve(size / 4);
 
     // option3
@@ -168,7 +168,8 @@ std::string sas = "";
 std::string url = "azure://" + container + "/" + vds;
 std::string connectionString = "BlobEndpoint=https://" + account + ".blob.core.windows.net;SharedAccessSignature=?" + sas;
 
-// could be fetched through metadata. Maybe do it in warm-up? how can I find a good number? And how can I automatically run correct number of processes? Can I run processes from c++ instead?
+// it depends on the file and could be fetched through metadata, but didn't bother
+// ilines btw are coming from the program arguments anyway
 int iline_min = 0;
 int iline_max = 6400;
 int xline_min = 0;
@@ -176,7 +177,7 @@ int xline_max = 3200;
 int depth_min = 700;
 int depth_max = 1000;
 
-// before measurements don't forget to assure Azure is warmed up
+// before measurements don't forget to account that Azure might not be warmed up
 int main(int argc, char* argv[]) {
     int sleepseconds = 5;
 
